@@ -1,12 +1,14 @@
 import express from "express";
-import studentsPath from "./students/index.js";
-import listEndPoints from "express-list-endpoints";
+import listEndpoints from "express-list-endpoints";
+import student from "./students/index.js";
+import cors from "cors";
 const server = express();
-const port = 3001;
+const port = 3000;
 
-server.use(express.json);
-server.use("/students", studentsPath);
-console.log(listEndPoints(server));
+server.use(cors());
+server.use(express.json());
+server.use("/student", student);
+console.log("this is the endpoint: ", listEndpoints(server));
 server.listen(port, () => {
-  console.log("Hola mundo", port);
+  console.log("este es un nuevo servidor", port);
 });
