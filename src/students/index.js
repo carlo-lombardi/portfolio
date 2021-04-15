@@ -1,12 +1,12 @@
 import express, { json } from "express";
-import fs from "fs";
+import fs from "fs-extra";
 import { dirname, join, parse } from "path";
 import { fileURLToPath } from "url";
 import uniqid from "uniqid";
 
 const router = express.Router();
 const fullPath = fileURLToPath(import.meta.url);
-const fullPathFile = join(dirname(fullPath), "student.json");
+const fullPathFile = join(dirname(fullPath), "../data/student.json");
 
 router.get("/", (req, res) => {
   const asBuffer = fs.readFileSync(fullPathFile);
@@ -30,6 +30,7 @@ router.post("/", (req, res) => {
 
   const newStudent = req.body;
   newStudent.id = uniqid();
+
   studentJson.push(newStudent);
 
   fs.writeFileSync(fullPathFile, JSON.stringify(studentJson));

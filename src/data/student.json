@@ -1,0 +1,25 @@
+[
+  {
+    "name":"carlo",
+    "surname":"lombardi",
+    "id":"5698",
+    "email":"mr.asdsad@outlook.com",
+    "dateOfBirth":"05/06/1936"
+  },
+
+  {
+    "name":"manuel",
+    "surname":"lombardi",
+    "id":"5896",
+    "email":"mr.asdsad@outlook.com",
+    "dateOfBirth":"05/06/1936"
+  },
+
+  {
+    "name":"jose",
+    "surname":"lombardi",
+    "email":"mr.asdsad@outlook.com",
+    "dateOfBirth":"05/06/1936",
+    "id":"50ftmbr8knglgm86"
+  }
+]
