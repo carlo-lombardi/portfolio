@@ -4,7 +4,8 @@ import {
   getProjects,
   writeProjects,
   getStudents,
-  writeStudent,
+  writeStudents,
+  getReviews,
 } from "../library/fs-tools.js";
 const router = express.Router();
 
@@ -34,6 +35,17 @@ router.get("/:id", async (req, res) => {
     console.log(error);
   }
 });
+router.get("/:id/reviews", async (req, res) => {
+  try {
+    // const dataConverted = await getProjects();
+    const requestId = req.params.id;
+    const getReview = await getReviews();
+    const newArrayReview = getReview.filter((e) => e.projectID === requestId);
+    res.send(newArrayReview);
+  } catch (error) {
+    console.log(error);
+  }
+});
 router.post("/", async (req, res) => {
   try {
     const projects = await getProjects();
@@ -41,58 +53,53 @@ router.post("/", async (req, res) => {
     const { studentID } = req.body;
     const student = students.find((e) => e.id === studentID);
     if (student) {
-      const numberOfProjects = projects.filter((e) => e.studentID === studentID)
-        .lenght;
+      let numberOfProjects = projects.filter((e) => e.studentID === studentID)
+        .length;
       const newProject = { ...req.body, id: uniqid() };
       projects.push(newProject);
-      writeProjects(projects);
+      await writeProjects(projects);
       numberOfProjects++;
-      const newStudentOfTheProjects = students.filter(
-        (e) => e.id !== studentID
-      );
+      let newStudentOfTheProjects = students.filter((e) => e.id !== studentID);
 
-      students.numberOfProjects = numberOfProjects;
+      student.numberOfProjects = numberOfProjects;
       newStudentOfTheProjects.push(student);
 
-      await writeStudent(newStudentOfTheProjects);
+      await writeStudents(newStudentOfTheProjects);
 
-      res.status(201).send({ id: newProject.id });
+      res.status(201).send({ status: "all good" });
     } else {
-      console.log(error);
+      res.status(400).send({ message: "students is not found" });
     }
   } catch (error) {
-    console.log(error);
+    res.status(500).send({ message: error.message });
   }
 });
+
 router.put("/:id", async (req, res) => {
   try {
-    const dataConverted = await getProjects();
+    const projects = await getProjects();
     const requestId = req.params.id;
-
-    const arrayMod = dataConverted.filter((x) => x.id !== requestId);
-
+    const modifiedProject = projects.filter((x) => x.id !== requestId);
     const newArray = req.body;
     newArray.id = requestId;
-
-    arrayMod.push(newArray);
-    await writeStudent(arrayMod);
-
-    res.send([{ data: "hello world" }]);
+    modifiedProject.push(newArray);
+    await writeProjects(modifiedProject);
+    res.send([{ message: "all good" }]);
   } catch (error) {
     console.log(error);
   }
 });
 router.delete("/:id", async (req, res) => {
   try {
-    const dataConverted = await getProjects();
+    const projects = await getProjects();
     const requestId = req.params.id;
 
     const newArray = req.body;
     newArray.id = requestId;
 
-    const newEmptyArray = dataConverted.filter((x) => x.id !== requestId);
-    await writeStudent(newEmptyArray);
-    res.send([{ data: "hello world" }]);
+    const newEmptyArray = projects.filter((x) => x.id !== requestId);
+    await writeProjects(newEmptyArray);
+    res.send([{ message: "all Good" }]);
   } catch (error) {
     console.log(error);
   }

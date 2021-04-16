@@ -1,71 +1,71 @@
 import express, { json } from "express";
 import fs from "fs-extra";
-import { dirname, join, parse } from "path";
-import { fileURLToPath } from "url";
 import uniqid from "uniqid";
-
+import {
+  getProjects,
+  writeProjects,
+  getStudents,
+  writeStudents,
+} from "../library/fs-tools.js";
 const router = express.Router();
-const fullPath = fileURLToPath(import.meta.url);
-const fullPathFile = join(dirname(fullPath), "../data/student.json");
 
-router.get("/", (req, res) => {
-  const asBuffer = fs.readFileSync(fullPathFile);
-  const asBufferConverted = asBuffer.toString();
-  const studentJson = JSON.parse(asBufferConverted);
-  res.send(studentJson);
+router.get("/", async (req, res) => {
+  try {
+    const students = await getStudents();
+    res.send(students);
+  } catch (error) {
+    console.log(error);
+  }
 });
-router.get("/:id", (req, res) => {
-  const requestId = req.params.id;
-  const asBuffer = fs.readFileSync(fullPathFile);
-  const asBufferConverted = asBuffer.toString();
-  const studentJson = JSON.parse(asBufferConverted);
-  const studentJsonId = studentJson.find((st) => st.id === requestId);
-
-  res.send(studentJsonId);
+router.get("/:id", async (req, res) => {
+  try {
+    const reqId = req.params.id;
+    const students = await getStudents();
+    const studentId = students.find((e) => e.id === reqId);
+    res.send(studentId);
+  } catch (error) {
+    console.log("the error ", error);
+  }
 });
-router.post("/", (req, res) => {
-  const asBuffer = fs.readFileSync(fullPathFile);
-  const asBufferConverted = asBuffer.toString();
-  const studentJson = JSON.parse(asBufferConverted);
+router.post("/", async (req, res) => {
+  try {
+    const students = await getStudents();
+    const newStudent = { ...req.body, id: uniqid() };
 
-  const newStudent = req.body;
-  newStudent.id = uniqid();
+    students.push(newStudent);
+    await writeStudents(students);
 
-  studentJson.push(newStudent);
-
-  fs.writeFileSync(fullPathFile, JSON.stringify(studentJson));
-
-  res.status(201).send({ id: newStudent.id });
+    res.status(201).send({ id: newStudent.id });
+  } catch (error) {
+    console.log(error);
+  }
 });
-router.put("/:id", (req, res) => {
-  const requestId = req.params.id;
-  const asBuffer = fs.readFileSync(fullPathFile);
-  const asBufferConverted = asBuffer.toString();
-  const studentJson = JSON.parse(asBufferConverted);
+router.put("/:id", async (req, res) => {
+  try {
+    const students = await getStudents();
+    const reqId = req.params.id;
+    const gettingNewStudent = students.filter((e) => e.id !== reqId);
+    const newModifiedStudent = { ...req.body, id: reqId, modiedAt: new Date() };
 
-  const arrayMod = studentJson.filter((x) => x.id !== requestId);
-
-  const newArray = req.body;
-  newArray.id = requestId;
-
-  arrayMod.push(newArray);
-  fs.writeFileSync(fullPathFile, JSON.stringify(arrayMod));
-
-  res.send([{ data: "hello world" }]);
+    gettingNewStudent.push(newModifiedStudent);
+    await writeStudents(gettingNewStudent);
+    res.status(201).send({ id: newModifiedStudent.id });
+  } catch (error) {
+    console.log(error);
+  }
 });
-router.delete("/:id", (req, res) => {
-  const requestId = req.params.id;
-  const asBuffer = fs.readFileSync(fullPathFile);
-  const asBufferConverted = asBuffer.toString();
-  const studentJson = JSON.parse(asBufferConverted);
+router.delete("/:id", async (req, res) => {
+  try {
+    const students = await getStudents();
+    const reqId = req.params.id;
+    const deleteStudent = students.filter((e) => e.id !== reqId);
 
-  const newArray = req.body;
-  newArray.id = requestId;
-
-  const newEmptyArray = studentJson.filter((x) => x.id !== requestId);
-  fs.writeFileSync(fullPathFile, JSON.stringify(newEmptyArray));
-
-  res.send([{ data: "hello world" }]);
+    students.push(deleteStudent);
+    await writeStudents(deleteStudent);
+    res.send({ response: "all good" });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 export default router;
